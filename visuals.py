@@ -82,7 +82,7 @@ def getReconstructedImages(X, autoencoder):
     nbSquares = int(math.sqrt(nbSamples))
     nbSquaresHeight = 2*nbSquares
     nbSquaresWidth = nbSquaresHeight
-    resultImage = np.zeros((nbSquaresHeight*imageSize,nbSquaresWidth*imageSize/2,X.shape[-1]))
+    resultImage = np.zeros((nbSquaresHeight*imageSize, nbSquaresWidth*imageSize//2, X.shape[-1]))
 
     reconstructedX = autoencoder.predict(X)
 
@@ -90,7 +90,7 @@ def getReconstructedImages(X, autoencoder):
         original = X[i]
         reconstruction = reconstructedX[i]
         rowIndex = i%nbSquaresWidth
-        columnIndex = (i-rowIndex)/nbSquaresHeight
+        columnIndex = (i-rowIndex)//nbSquaresHeight
         resultImage[rowIndex*imageSize:(rowIndex+1)*imageSize,columnIndex*2*imageSize:(columnIndex+1)*2*imageSize,:] = np.hstack([original,reconstruction])
 
     return resultImage
@@ -163,13 +163,14 @@ def visualizeInterpolation(start, end, encoder, decoder, save=False, nbSteps=5):
     # Decode latent space vectors
     vectors = np.array(vectors)
     reconstructions = decoder.predict(vectors)
+    print(reconstructions.shape)
 
     # Put final image together
     resultLatent = None
     resultImage = None
 
     if save:
-        hashName = ''.join(random.choice(string.lowercase) for i in range(3))
+        hashName = ''.join(random.choice(string.ascii_lowercase) for i in list(range(3)))
 
     for i in range(len(reconstructions)):
         interpolatedImage = normalImages[i]*255

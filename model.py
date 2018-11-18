@@ -5,30 +5,32 @@ import cv2
 
 import numpy as np
 import matplotlib.pyplot as plt
+import tensorflow as tf
+import tensorflow.keras as keras
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from scipy.stats import norm
 from sklearn import manifold
 
-from keras.layers import Input, Dense, Lambda, Flatten, Reshape
-from keras.layers import Convolution2D, UpSampling2D, MaxPooling2D
-from keras.models import Model
-from keras.layers.advanced_activations import ELU
-from keras import backend as K
-from keras import objectives
+from tensorflow.python.keras.layers import Input, Dense, Lambda, Flatten, Reshape
+from tensorflow.python.keras.layers import Convolution2D, UpSampling2D, MaxPooling2D
+from tensorflow.python.keras.models import Model
+from tensorflow.python.keras.layers.advanced_activations import ELU
+from tensorflow.python.keras import backend as K
+from tensorflow.python.keras import losses
 from config import latent_dim, imageSize
 
 # Convolutional models
 # x is input, z is 
 def getModels():
     input_img = Input(shape=(imageSize, imageSize, 1))
-    x = Convolution2D(32, 3, 3, border_mode='same')(input_img)
+    x = Convolution2D(32, (3, 3), padding='same', input_shape=(imageSize, imageSize, 1))(input_img)
     x = ELU()(x)
-    x = MaxPooling2D((2, 2), border_mode='same')(x)
+    x = MaxPooling2D(padding='same')(x)
 
-    x = Convolution2D(64, 3, 3, border_mode='same')(x)
+    x = Convolution2D(64, (3, 3), padding='same')(x)
     x = ELU()(x)
-    x = MaxPooling2D((2, 2), border_mode='same')(x)
+    x = MaxPooling2D((2, 2), padding='same')(x)
 
     # Latent space // bottleneck layer
     x = Flatten()(x)
@@ -45,10 +47,10 @@ def getModels():
     # Reshape for image
     x_decoded_reshape0 = Reshape((7, 7, 64))
     x_decoded_upsample0 = UpSampling2D((2, 2))
-    x_decoded_conv0  = Convolution2D(32, 3, 3, border_mode='same')
+    x_decoded_conv0  = Convolution2D(32, (3, 3), padding='same')
 
     x_decoded_upsample3 = UpSampling2D((2, 2))
-    x_decoded_conv3 = Convolution2D(1, 3, 3, activation='sigmoid', border_mode='same')
+    x_decoded_conv3 = Convolution2D(1, (3, 3), activation='sigmoid', padding='same')
 
     # Create second part of autoencoder
     x_decoded = x_decoded_dense1(z)
